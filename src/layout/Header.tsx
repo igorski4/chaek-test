@@ -9,8 +9,11 @@ type HeaderProps = {
 
 const Header: FC<HeaderProps> = ({ title, timer = false }) => {
   return (
-    <div className={clsx("px-4 py-[17px] flex", timer ? "justify-between" : "justify-center")}>
-      <Title>{title}</Title>
+    <div>
+      <div className={clsx("px-4 py-[17px] flex", timer ? "justify-between" : "justify-center")}>
+        <Title>{title}</Title>
+      </div>
+      <div className="mt-[3px] h-[3px] bg-gray-100"></div>
     </div>
   );
 };
