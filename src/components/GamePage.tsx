@@ -4,6 +4,7 @@ import Header from "../layout/Header";
 import IconButton from "../ui/IconButton";
 import { MessageIcon } from "../constants/icons";
 import Input from "../ui/Input";
+import PlayingField from "./PlayingField";
 
 type GamePageType = {
   setGameState: React.Dispatch<React.SetStateAction<number>>;
@@ -12,13 +13,18 @@ type GamePageType = {
 const GamePage: FC<GamePageType> = () => {
   const [canStep, setCanStep] = useState<boolean>(true);
   const [inputCity, setInputCity] = useState<string>("");
-  // const [citiesList, setCitiesList] = useState<string[]>([]);
+  const [citiesList, setCitiesList] = useState<string[]>([]);
 
-  const handleClick = () => setCanStep(!canStep);
+  const handleClick = () => {
+    setCanStep(!canStep);
+    setCitiesList([...citiesList, inputCity]);
+    setInputCity("");
+  };
 
   return (
     <Container>
       <Header title={canStep ? "Сейчас ваша очередь" : "Сейчас очередь соперника"} timer />
+      <PlayingField inputCities={citiesList} />
       <div className="p-4">
         <div className="flex gap-x-[15px] bg-gray-100 rounded-md pr-2">
           <Input
