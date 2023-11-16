@@ -5,10 +5,26 @@ import IconButton from "../ui/IconButton";
 import { MessageIcon } from "../constants/icons";
 import Input from "../ui/Input";
 import PlayingField from "./PlayingField";
+import { cities } from "../constants/cities";
+import { delay } from "../utils/delay";
 
 type GamePageType = {
   setGameState: React.Dispatch<React.SetStateAction<number>>;
 };
+
+const getLastCity = (citiesList: string[]) => citiesList[citiesList.length - 1];
+
+const getLastCityChar = (lastCity: string) => {
+  return lastCity[lastCity.length - 1] !== "ъ" && lastCity[lastCity.length - 1] !== "ь"
+    ? lastCity[lastCity.length - 1]
+    : lastCity[lastCity.length - 2];
+};
+
+const getPossibleCities = (lastCityChar: string, citiesList: string[]) => {
+  return cities.filter((el) => el[0].toLocaleLowerCase() === lastCityChar).filter((el) => !citiesList.includes(el));
+};
+
+const formatеingString = (str: string) => str.toLocaleLowerCase().trim();
 
 const GamePage: FC<GamePageType> = ({ setGameState }) => {
   const [canStep, setCanStep] = useState<boolean>(true);
@@ -25,9 +41,32 @@ const GamePage: FC<GamePageType> = ({ setGameState }) => {
     }
   }, [seconds]);
 
+  useEffect(() => {
+    if (!canStep) {
+      const lastCity = getLastCity(citiesList);
+      const lastCityChar = getLastCityChar(lastCity);
+      const listPossibleCities = getPossibleCities(lastCityChar, citiesList);
+
+      delay().then(() => {
+        const randomIndex = Math.random() * (listPossibleCities.length + 1);
+        setCitiesList([...citiesList, listPossibleCities[Math.floor(randomIndex)]]);
+        setCanStep(!canStep);
+      });
+    }
+  }, [canStep]);
+
   const handleClick = () => {
-    setCanStep(!canStep);
-    setCitiesList([...citiesList, inputCity]);
+    const lastCity = getLastCity(citiesList);
+    const lastCityChar = getLastCityChar(lastCity);
+
+    const findIndex = cities.findIndex((el) => formatеingString(el) === formatеingString(inputCity));
+    const findInInputCities = !citiesList.includes(cities[findIndex]);
+    const checkLastChar = cities[findIndex][0].toLocaleLowerCase() === lastCityChar;
+
+    if (~findIndex && findInInputCities && checkLastChar) {
+      setCanStep(!canStep);
+      setCitiesList([...citiesList, cities[findIndex]]);
+    }
     setInputCity("");
   };
 

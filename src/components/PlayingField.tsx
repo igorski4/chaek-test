@@ -1,6 +1,7 @@
 import { FC } from "react";
 import PlayingCitiesList from "./PlayingCitiesList";
 import PlayingCitiesListItem from "./PlayingCitiesListItem";
+import { v4 as uuidv4 } from "uuid";
 
 type PlayingFieldProps = {
   inputCities: string[];
@@ -14,7 +15,7 @@ const PlayingField: FC<PlayingFieldProps> = ({ inputCities }) => {
           <>
             <PlayingCitiesList>
               {inputCities.map((el, i) => (
-                <PlayingCitiesListItem user={Boolean(i % 2)} city={el} />
+                <PlayingCitiesListItem key={uuidv4()} user={Boolean(i % 2)} city={el} />
               ))}
             </PlayingCitiesList>
           </>
