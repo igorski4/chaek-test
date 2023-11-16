@@ -1,11 +1,16 @@
+import { useState } from "react";
 import MainPage from "./components/MainPage";
-import Container from "./layout/Container";
+import GamePage from "./components/GamePage";
 
 const App = () => {
+  const [gameState, setGameState] = useState<number>(0);
+
   return (
-    <Container>
-      <MainPage />
-    </Container>
+    <>
+      {!gameState && <MainPage setGameState={setGameState} />}
+      {gameState === 1 && <GamePage setGameState={setGameState} />}
+      {gameState === 2 && <MainPage setGameState={setGameState} />}
+    </>
   );
 };
 

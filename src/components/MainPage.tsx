@@ -1,8 +1,17 @@
+import { FC } from "react";
 import Header from "../layout/Header";
+import Button from "../ui/Button";
+import Container from "../layout/Container";
 
-const MainPage = () => {
+type MainPageType = {
+  setGameState: React.Dispatch<React.SetStateAction<number>>;
+};
+
+const MainPage: FC<MainPageType> = ({ setGameState }) => {
+  const handleClick = () => setGameState(1);
+
   return (
-    <div className="w-full">
+    <Container>
       <Header title="Игра в города на время" />
       <div className="p-6 flex flex-col gap-y-6">
         <p className="text-sm leading-normal text-zinc-700">Цель: Назвать как можно больше реальных городов.</p>
@@ -20,9 +29,9 @@ const MainPage = () => {
           </ul>
         </div>
 
-        <button className="bg-violet-600 rounded px-4 py-2 w-fit text-white mx-auto">Начать игру</button>
+        <Button onClick={handleClick}>Начать игру</Button>
       </div>
-    </div>
+    </Container>
   );
 };
 
