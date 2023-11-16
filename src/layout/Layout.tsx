@@ -5,7 +5,7 @@ type LayoutProps = {
 };
 
 const Layout: FC<LayoutProps> = ({ children }) => {
-  return <div className="h-screen flex justify-center items-center max-w-xl mx-auto">{children}</div>;
+  return <div className="h-screen bg-gray-200 flex justify-center items-center">{children}</div>;
 };
 
 export default Layout;
