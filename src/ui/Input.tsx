@@ -11,7 +11,15 @@ const Input: FC<InputType> = ({ onChange, placeholder, value }) => {
     onChange(e.currentTarget.value);
   };
 
-  return <input onChange={handleChange} value={value} placeholder={placeholder} />;
+  return (
+    <input
+      onChange={handleChange}
+      value={value}
+      placeholder={placeholder}
+      className="w-full p-3 bg-gray-100 rounded-md"
+      type="text"
+    />
+  );
 };
 
 export default Input;
