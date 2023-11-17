@@ -42,7 +42,7 @@ const GamePage: FC<GamePageType> = ({ setGameState, inputCitiesList, setInputCit
 
       if (listPossibleCities?.length) {
         delay().then(() => {
-          const randomIndex = Math.random() * (listPossibleCities.length + 1);
+          const randomIndex = Math.random() * listPossibleCities.length;
           setInputCitiesList([...inputCitiesList, listPossibleCities[Math.floor(randomIndex)]]);
           setCanStep(!canStep);
         });
