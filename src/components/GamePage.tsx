@@ -7,12 +7,15 @@ import Input from "../ui/Input";
 import PlayingField from "./PlayingField";
 import { cities } from "../constants/cities";
 import { delay } from "../utils/delay";
+import { formatеingString } from "../utils/formatting";
 
 type GamePageType = {
   setGameState: React.Dispatch<React.SetStateAction<number>>;
+  inputCitiesList: string[];
+  setInputCitiesList: React.Dispatch<React.SetStateAction<string[]>>;
 };
 
-const getLastCity = (citiesList: string[]) => citiesList[citiesList.length - 1];
+const getLastCity = (inputCitiesList: string[]) => inputCitiesList[inputCitiesList.length - 1];
 
 const getLastCityChar = (lastCity: string) => {
   return lastCity[lastCity.length - 1] !== "ъ" && lastCity[lastCity.length - 1] !== "ь"
@@ -20,18 +23,17 @@ const getLastCityChar = (lastCity: string) => {
     : lastCity[lastCity.length - 2];
 };
 
-const getPossibleCities = (lastCityChar: string, citiesList: string[]) => {
-  return cities.filter((el) => el[0].toLocaleLowerCase() === lastCityChar).filter((el) => !citiesList.includes(el));
+const getPossibleCities = (lastCityChar: string, inputCitiesList: string[]) => {
+  return cities
+    .filter((el) => el[0].toLocaleLowerCase() === lastCityChar)
+    .filter((el) => !inputCitiesList.includes(el));
 };
 
-const formatеingString = (str: string) => str.toLocaleLowerCase().trim();
-
-const GamePage: FC<GamePageType> = ({ setGameState }) => {
-  const [canStep, setCanStep] = useState<boolean>(true);
+const GamePage: FC<GamePageType> = ({ setGameState, inputCitiesList, setInputCitiesList }) => {
   const [inputCity, setInputCity] = useState<string>("");
-  const [citiesList, setCitiesList] = useState<string[]>([]);
-
-  const [seconds, setSeconds] = useState<number>(10000);
+  const [canStep, setCanStep] = useState<boolean>(true);
+  const [seconds, setSeconds] = useState<number>(1200);
+  const [error, setError] = useState<string>("");
 
   useEffect(() => {
     if (seconds) {
@@ -43,46 +45,94 @@ const GamePage: FC<GamePageType> = ({ setGameState }) => {
 
   useEffect(() => {
     if (!canStep) {
-      const lastCity = getLastCity(citiesList);
+      const lastCity = getLastCity(inputCitiesList);
       const lastCityChar = getLastCityChar(lastCity);
-      const listPossibleCities = getPossibleCities(lastCityChar, citiesList);
+      const listPossibleCities = getPossibleCities(lastCityChar, inputCitiesList);
 
-      delay().then(() => {
-        const randomIndex = Math.random() * (listPossibleCities.length + 1);
-        setCitiesList([...citiesList, listPossibleCities[Math.floor(randomIndex)]]);
-        setCanStep(!canStep);
-      });
+      if (listPossibleCities?.length) {
+        const ms = Math.random() * 10;
+        if (ms < seconds)
+          delay(ms).then(() => {
+            const randomIndex = Math.random() * (listPossibleCities.length + 1);
+            setInputCitiesList([...inputCitiesList, listPossibleCities[Math.floor(randomIndex)]]);
+            setCanStep(!canStep);
+          });
+      }
     }
   }, [canStep]);
 
+  useEffect(() => {
+    if (inputCity) setError("");
+  }, [inputCity]);
+
   const handleClick = () => {
-    const lastCity = getLastCity(citiesList);
+    const findIndex = cities.findIndex((el) => formatеingString(el) === formatеingString(inputCity));
+
+    if (!~findIndex) {
+      setInputCity("");
+      setError("Город не найден!");
+      return;
+    }
+
+    if (!inputCitiesList.length) {
+      setCanStep(!canStep);
+      setInputCitiesList([cities[findIndex]]);
+      setInputCity("");
+      return;
+    }
+
+    const lastCity = getLastCity(inputCitiesList);
     const lastCityChar = getLastCityChar(lastCity);
 
-    const findIndex = cities.findIndex((el) => formatеingString(el) === formatеingString(inputCity));
-    const findInInputCities = !citiesList.includes(cities[findIndex]);
     const checkLastChar = cities[findIndex][0].toLocaleLowerCase() === lastCityChar;
 
-    if (~findIndex && findInInputCities && checkLastChar) {
-      setCanStep(!canStep);
-      setCitiesList([...citiesList, cities[findIndex]]);
+    if (!checkLastChar) {
+      setInputCity("");
+      setError("Данный город не начинается на последнюю букву предыдущего!");
+      return;
     }
+
+    const findInInputCities = !inputCitiesList.includes(cities[findIndex]);
+
+    if (!findInInputCities) {
+      setInputCity("");
+      setError("Данный город уже называли!");
+      return;
+    }
+
+    setCanStep(!canStep);
+    setInputCitiesList([...inputCitiesList, cities[findIndex]]);
     setInputCity("");
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLElement>) => {
+    if (e.key === "Enter") {
+      handleClick();
+    }
   };
 
   return (
     <Container>
       <Header title={canStep ? "Сейчас ваша очередь" : "Сейчас очередь соперника"} timer={seconds} />
-      <PlayingField inputCities={citiesList} />
-      <div className="p-4">
+      <PlayingField inputCities={inputCitiesList} />
+      <div className="p-4" ref={null}>
         <div className="flex gap-x-[15px] bg-gray-100 rounded-md pr-2">
           <Input
             value={inputCity}
             onChange={setInputCity}
-            placeholder="Напишите любой город, например: Где вы живете?"
+            onKeyDown={handleKeyDown}
+            placeholder={
+              canStep
+                ? !inputCitiesList.length
+                  ? "Напишите любой город, например: Где вы живете?"
+                  : `Знаете город на букву “${getLastCityChar(getLastCity(inputCitiesList)).toLocaleUpperCase()}”?`
+                : "Ожидаем ответа соперника..."
+            }
+            disabled={!canStep}
           />
-          <IconButton onClick={handleClick} icon={MessageIcon} />
+          <IconButton onClick={handleClick} icon={MessageIcon} disabled={!canStep} />
         </div>
+        {error && <p className="pl-2 mt-1 text-xs text-red-600">{error}</p>}
       </div>
     </Container>
   );

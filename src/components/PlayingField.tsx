@@ -12,13 +12,11 @@ const PlayingField: FC<PlayingFieldProps> = ({ inputCities }) => {
     <div className="h-80 flex flex-col w-full justify-between">
       {inputCities.length > 0 ? (
         <div className="overflow-y-auto px-4 py-5 scrollbar-hide">
-          <>
-            <PlayingCitiesList>
-              {inputCities.map((el, i) => (
-                <PlayingCitiesListItem key={uuidv4()} user={Boolean(i % 2)} city={el} />
-              ))}
-            </PlayingCitiesList>
-          </>
+          <PlayingCitiesList inputCities={inputCities}>
+            {inputCities.map((el, i) => (
+              <PlayingCitiesListItem key={uuidv4()} user={Boolean(i % 2)} city={el} />
+            ))}
+          </PlayingCitiesList>
         </div>
       ) : (
         <p className="text-sm text-gray-400 leading-normal text-center my-auto">Первый участник вспоминает города...</p>
