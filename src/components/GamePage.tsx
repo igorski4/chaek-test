@@ -1,4 +1,4 @@
-import { FC, useState, useEffect, Key } from "react";
+import { FC, useState, useEffect } from "react";
 import Container from "../layout/Container";
 import Header from "../layout/Header";
 import IconButton from "../ui/IconButton";
@@ -33,7 +33,6 @@ const GamePage: FC<GamePageType> = ({ setGameState, inputCitiesList, setInputCit
   const [inputCity, setInputCity] = useState<string>("");
   const [canStep, setCanStep] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
-  const [timer, setTimer] = useState<Key>(1);
 
   useEffect(() => {
     if (!canStep) {
@@ -46,7 +45,6 @@ const GamePage: FC<GamePageType> = ({ setGameState, inputCitiesList, setInputCit
           const randomIndex = Math.random() * (listPossibleCities.length + 1);
           setInputCitiesList([...inputCitiesList, listPossibleCities[Math.floor(randomIndex)]]);
           setCanStep(!canStep);
-          setTimer(1);
         });
       }
     }
@@ -94,7 +92,6 @@ const GamePage: FC<GamePageType> = ({ setGameState, inputCitiesList, setInputCit
     setCanStep(!canStep);
     setInputCitiesList([...inputCitiesList, cities[findIndex]]);
     setInputCity("");
-    setTimer(2);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLElement>) => {
@@ -108,7 +105,7 @@ const GamePage: FC<GamePageType> = ({ setGameState, inputCitiesList, setInputCit
       <Header
         title={canStep ? "Сейчас ваша очередь" : "Сейчас очередь соперника"}
         timer={true}
-        resetTimer={timer}
+        resetTimer={canStep}
         setGameState={setGameState}
       />
       <PlayingField inputCities={inputCitiesList} />
