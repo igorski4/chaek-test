@@ -1,4 +1,4 @@
-import { FC, useState, useEffect } from "react";
+import { FC, useState, useEffect, Key } from "react";
 import Container from "../layout/Container";
 import Header from "../layout/Header";
 import IconButton from "../ui/IconButton";
@@ -32,16 +32,8 @@ const getPossibleCities = (lastCityChar: string, inputCitiesList: string[]) => {
 const GamePage: FC<GamePageType> = ({ setGameState, inputCitiesList, setInputCitiesList }) => {
   const [inputCity, setInputCity] = useState<string>("");
   const [canStep, setCanStep] = useState<boolean>(true);
-  const [seconds, setSeconds] = useState<number>(1200);
   const [error, setError] = useState<string>("");
-
-  useEffect(() => {
-    if (seconds) {
-      setTimeout(setSeconds, 1000, seconds - 1);
-    } else {
-      setGameState(2);
-    }
-  }, [seconds]);
+  const [timer, setTimer] = useState<Key>(1);
 
   useEffect(() => {
     if (!canStep) {
@@ -50,13 +42,12 @@ const GamePage: FC<GamePageType> = ({ setGameState, inputCitiesList, setInputCit
       const listPossibleCities = getPossibleCities(lastCityChar, inputCitiesList);
 
       if (listPossibleCities?.length) {
-        const ms = Math.random() * 10;
-        if (ms < seconds)
-          delay(ms).then(() => {
-            const randomIndex = Math.random() * (listPossibleCities.length + 1);
-            setInputCitiesList([...inputCitiesList, listPossibleCities[Math.floor(randomIndex)]]);
-            setCanStep(!canStep);
-          });
+        delay().then(() => {
+          const randomIndex = Math.random() * (listPossibleCities.length + 1);
+          setInputCitiesList([...inputCitiesList, listPossibleCities[Math.floor(randomIndex)]]);
+          setCanStep(!canStep);
+          setTimer(1);
+        });
       }
     }
   }, [canStep]);
@@ -103,6 +94,7 @@ const GamePage: FC<GamePageType> = ({ setGameState, inputCitiesList, setInputCit
     setCanStep(!canStep);
     setInputCitiesList([...inputCitiesList, cities[findIndex]]);
     setInputCity("");
+    setTimer(2);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLElement>) => {
@@ -113,7 +105,12 @@ const GamePage: FC<GamePageType> = ({ setGameState, inputCitiesList, setInputCit
 
   return (
     <Container>
-      <Header title={canStep ? "Сейчас ваша очередь" : "Сейчас очередь соперника"} timer={seconds} />
+      <Header
+        title={canStep ? "Сейчас ваша очередь" : "Сейчас очередь соперника"}
+        timer={true}
+        resetTimer={timer}
+        setGameState={setGameState}
+      />
       <PlayingField inputCities={inputCitiesList} />
       <div className="p-4" ref={null}>
         <div className="flex gap-x-[15px] bg-gray-100 rounded-md pr-2">
